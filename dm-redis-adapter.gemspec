@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<dm-validations>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<dm-types>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<redis>, [">= 3.0.4"])
-      s.add_runtime_dependency(%q<hiredis>, ["~> 0.4.0"])
+      s.add_runtime_dependency(%q<hiredis>, ["~> 0.6.0"])
       s.add_development_dependency(%q<rake>, [">= 10.0.3"])
       s.add_development_dependency(%q<jeweler>, [">= 1.4.0"])
     else
