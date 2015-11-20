@@ -19,7 +19,7 @@ module DataMapper
         storage_name = resources.first.model.storage_name
         resources.each do |resource|
           initialize_serial(resource, @redis.incr("#{storage_name}:#{redis_key_for(resource.model)}:serial"))
-          @redis.sadd(key_set_for(resource.model), resource.key.join)
+          @redis.sadd(key_set_for(resource.model), resource.key.join(":"))
         end
         update_attributes(resources)
       end
@@ -117,7 +117,7 @@ module DataMapper
           attributes = resource.dirty_attributes
 
           resource.model.properties.select {|p| p.index}.each do |property|
-            @redis.sadd("#{storage_name}:#{property.name}:#{encode(resource[property.name.to_s])}", resource.key.join.to_s)
+            @redis.sadd("#{storage_name}:#{property.name}:#{encode(resource[property.name.to_s])}", resource.key.join(":").to_s)
           end
 
           properties_to_set = []
@@ -133,7 +133,7 @@ module DataMapper
             end
           end
 
-          hash_key = "#{storage_name}:#{resource.key.join}"
+          hash_key = "#{storage_name}:#{resource.key.join(":")}"
           properties_to_del.each {|prop| @redis.hdel(hash_key, prop) }
           @redis.hmset(hash_key, *properties_to_set) unless properties_to_set.empty?
         end
@@ -150,6 +150,7 @@ module DataMapper
         value = ""
         storage_name = query.model.storage_name
         query.conditions.operands.each do |operand|
+          value += ":" if value != ""
           value += operand.value.to_s if operand.subject.key?
         end
 
