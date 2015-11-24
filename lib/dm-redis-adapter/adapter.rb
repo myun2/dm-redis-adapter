@@ -92,10 +92,12 @@ module DataMapper
       # @api semipublic
       def delete(collection)
         collection.each do |record|
-          @redis.del("#{collection.query.model.storage_name}:#{record[redis_key_for(collection.query.model)]}")
-          @redis.srem(key_set_for(collection.query.model), record[redis_key_for(collection.query.model)])
+          model = collection.query.model
+          key = model.key.map { |k| record[k.name] }.join(":")
+          @redis.del "#{model.storage_name}:#{key}"
+          @redis.srem(key_set_for(model), key)
           record.model.properties.select {|p| p.index}.each do |p|
-            @redis.srem("#{collection.query.model.storage_name}:#{p.name}:#{encode(record[p.name])}", record[redis_key_for(collection.query.model)])
+            @redis.srem("#{model.storage_name}:#{p.name}:#{encode(record[p.name])}", key)
           end
         end
       end
